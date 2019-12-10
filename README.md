@@ -4,9 +4,9 @@ Machine learning experiments.
 
 * Use soundmaker.py to generate some 1-second samples. 
 
-This is a very simple synth engine. It produces a stack of harmonics as sine waves, some of which may be frequency modulated by other harmonics and some of which may be ring modulated by arbitrary frequencies. They all have an envelope consisiting of an attack from 0 to the harmonic's maximum level, followed by a decay back to zero. The attach is linear but the release can follow a power curve.
+This is a very simple synth engine. It produces a stack of harmonics as sine waves, which are integer multiples of the fundamental frequency with optional detuning. Some operators may be frequency modulated by others in the stack and some may be ring modulated by arbitrary frequencies. They all have an envelope consisiting of an attack from 0 to the harmonic's maximum level, followed by a decay back to zero. The attach is linear but the release can follow a power curve.
 
-The script will create a predetermined number of short samples, each using a completely random patch and played at A=440Hz. You need to set the dir variable at the top to something suitable, and the numSamples variable near the bottom (defaults to 100, which isn't really enough for t-SNE but gives a good range of available sounds). 
+The script will create a predetermined number of short samples, each using a completely random patch and played at A=440Hz. The randomization is a bit hacky but is designed to provide a good variety of timbres for t-SNE to work with. You need to set the dir variable at the top to something suitable, and the numSamples variable near the bottom. 
 
 * Run tSNE-audio.py on the directory of samples to generate a JSON file. The command is `python tSNE-audio.py --input_dir synth-samples --output_file out-tSNE.json`
 
