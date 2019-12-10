@@ -1,8 +1,9 @@
 import wave, struct, math, random
 
-# All notes have fundamental A=440 for now
-fundamental = 440.0
-dir = r"C:\Programs\tSNE\synth-samples"
+fundamental = 440.0                         # All notes have fundamental A=440. Change to play a different note
+dir = r"C:\Programs\tSNE\synth-samples"     # Where the samples will be written
+numSamples = 1000	                    # The number of sample files to create (1000 takes about 80 mins on my laptop)
+filePrefix = "E"                            # Change the file prefix to create additional samples instead of overwriting 
 
 # Attack time a is a point in the 1-second clip
 # Up to this point, the amplitude rises linearly from 0 to maxA
@@ -22,7 +23,7 @@ def getEnvelope(a, maxA, t, decayPower):
 #   An envelope, which at the moment is just attack-release
 def writeFile(operators, fileNum):
 
-    ww = wave.open(dir + r"\sample-" + str(fileNum) + ".wav", "wb")
+    ww = wave.open(dir + "\\" + filePrefix + "-sample-" + str(fileNum) + ".wav", "wb")
     ww.setnchannels(1) # mono
     ww.setsampwidth(2)
     ww.setframerate(48100.0)
@@ -62,24 +63,36 @@ def writeFile(operators, fileNum):
 # Immediate TODO: Make the envelope better. Add FM and ring modulation envelopes as well.
     
 
-# Change this to set the number of sample files to be written
-numSamples = 100
 
 for j in range(0, numSamples):
     ops = []
-    numOps = random.randint(5, 30)
+    numOps = random.randint(1, 5)       # "Exploding dice" approach makes fairly simple sounds more common than very complex ones
+    if numOps > 4:
+        numOps = random.randint(5, 10)
+        if numOps > 9:
+            numOps = random.randint(10, 30)
     ringModChance = random.random()
     if random.random() < 0.4:
         ringModChance = ringModChance / 10
+    overallA = random.random()
+    print("Generating operators with params:", numOps, overallA, ringModChance)
     for i in range(0, numOps):
-        f = fundamental * float(i)
+        f = fundamental * float(i + 1)
+        detune = 0.0
+        if random.random()> 0.95:
+            detune = random.random() * f*pow(2, 1/12)
+            if random.random()> 0.5:
+                detune = detune * -1
+        f += detune
         a = random.random()
         d = random.random() * 10 + 1
         # Random chance that this oscillator is being ring-modulated by a random frequency
         # This introduces inharmonic content into the sound
         rm = -1
-        if random.random() < ringModChance:
-            rm = random.randint(1, 16000)
+        if random.random() < ringModChance: # Try once for audio range rm...
+            rm = random.randint(10, 16000)
+        elif random.random() < ringModChance:   # ...and once for an LFO
+            rm = random.random() + 0.01
         ops.append([f, random.random()*0.3, a, -1, d, rm])
 
     # Add frequency modulation; using this scheme because otherwise it can be a bit overpowering
@@ -95,5 +108,6 @@ for j in range(0, numSamples):
             ops[i][3] = m
         print(ops[i])
 
+    print("Writing the file...")
     writeFile(ops, j)
     print("Done file", j, "of", numSamples)
